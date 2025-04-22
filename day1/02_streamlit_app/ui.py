@@ -31,32 +31,35 @@ def display_chat_page(pipe):
         st.session_state.feedback_given = False # フィードバック状態もリセット
 
         with st.spinner("モデルが回答を生成中..."):
-            answer, response_time = generate_response(pipe, user_question)
+            # サイドバーのパラメータを取得して渡す（追加部分）
+            answer, response_time = generate_response(
+                pipe,
+                user_question,
+                max_length=st.session_state.get("max_length", 512),  # デフォルト512
+                temperature=st.session_state.get("temperature", 0.7), # デフォルト0.7
+                top_p=st.session_state.get("top_p", 0.9)              # デフォルト0.9
+            )
             st.session_state.current_answer = answer
             st.session_state.response_time = response_time
-            # ここでrerunすると回答とフィードバックが一度に表示される
             st.rerun()
 
-    # 回答が表示されるべきか判断 (質問があり、回答が生成済みで、まだフィードバックされていない)
+    # 回答表示部分（以下変更なし）
     if st.session_state.current_question and st.session_state.current_answer:
         st.subheader("回答:")
-        st.markdown(st.session_state.current_answer) # Markdownで表示
+        st.markdown(st.session_state.current_answer)
         st.info(f"応答時間: {st.session_state.response_time:.2f}秒")
 
-        # フィードバックフォームを表示 (まだフィードバックされていない場合)
         if not st.session_state.feedback_given:
             display_feedback_form()
         else:
-             # フィードバック送信済みの場合、次の質問を促すか、リセットする
              if st.button("次の質問へ"):
-                  # 状態をリセット
                   st.session_state.current_question = ""
                   st.session_state.current_answer = ""
                   st.session_state.response_time = 0.0
                   st.session_state.feedback_given = False
-                  st.rerun() # 画面をクリア
-
-
+                  st.rerun()
+                  
+# --- フィードバックフォームのUI ---
 def display_feedback_form():
     """フィードバック入力フォームを表示する"""
     with st.form("feedback_form"):

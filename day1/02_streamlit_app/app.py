@@ -64,6 +64,50 @@ page = st.sidebar.radio(
     on_change=lambda: setattr(st.session_state, 'page', st.session_state.page_selector) # 選択変更時に状態を更新
 )
 
+# モデルパラメータセクションを追加
+st.sidebar.markdown("---")
+st.sidebar.title("モデルパラメータ")
+
+# 初期値の設定（セッションステートがなければデフォルト値を使用）
+if 'max_length' not in st.session_state:
+    st.session_state.max_length = 512
+if 'temperature' not in st.session_state:
+    st.session_state.temperature = 0.7
+if 'top_p' not in st.session_state:
+    st.session_state.top_p = 0.9
+
+# スライダーの追加
+max_length = st.sidebar.slider(
+    "回答の最大長", 
+    min_value=64, 
+    max_value=2048, 
+    value=st.session_state.max_length, 
+    step=64,
+    help="生成される回答の最大トークン数を指定します"
+)
+st.session_state.max_length = max_length
+
+temperature = st.sidebar.slider(
+    "温度 (Temperature)", 
+    min_value=0.0, 
+    max_value=2.0, 
+    value=st.session_state.temperature, 
+    step=0.1,
+    help="値が高いほど創造的な回答になり、低いほど決定的な回答になります"
+)
+st.session_state.temperature = temperature
+
+top_p = st.sidebar.slider(
+    "多様性 (Top P)", 
+    min_value=0.0, 
+    max_value=1.0, 
+    value=st.session_state.top_p, 
+    step=0.05,
+    help="次のトークンを選択する際の確率閾値を設定します"
+)
+st.session_state.top_p = top_p
+
+
 
 # --- メインコンテンツ ---
 if st.session_state.page == "チャット":
